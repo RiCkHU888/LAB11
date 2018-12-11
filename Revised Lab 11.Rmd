@@ -1,0 +1,108 @@
+---
+title: "Lab10"
+author: "Ruixuan Hu"
+date: "11/25/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+1. Write a function that generates numbers from binomial(n, p) distribution using runif() function. Hint: binomial(n, p) random variable can be defined as a sum of n independent Bernoulli(p) random variables.
+
+```{r}
+count = 0 
+binfunc <- function(size,n,p) {
+  
+  for (i in 1:size) { 
+    for (i in 1:n) {
+      a[i] <- runif(1)
+      if (a[i] <= p)
+        a[i] = 0
+      else 
+        a[i] = 1
+    count = count + a[i]
+    }
+    return(count)
+  }
+  
+}
+
+binfunc(25,10,0.4)
+```
+
+
+
+2. Compare performance of your function with rbinom() using microbenchmark() function. 
+
+```{r}
+microbenchmark(rbinom(25,10,0.4),binfunc(25,10,0.4))
+```
+
+
+3. Suppose we want to simulate data from a linear regression model:
+Yi =β0 +β1 ×Xi +εi i=1,...,N
+where ε ∼ N(0,3) and X is a covariate that ranges between 20 and 40. Let β0 = 15 and β1 = 0.4 are known coefficients. Generate data (N = 50) from this models with given coefficients. Fit a linear regression model and plot fitted values vs residuals using ggplot() function. Please do not forget to use set.seed() function for reproducibility.
+
+
+First, get the coefficients.
+```{r}
+β0 <- 15
+β1 <- 4
+
+set.seed(321)
+results <- matrix(nrow = 50, ncol = 2)
+for (i in 1:50) {
+  x1 <- runif(100)
+  e <- rnorm(100, mean = 0, sd = 3)
+  y1 <- β0+β1*x1+e
+  
+  linereg<- lm(y1 ~ x1)
+  results[i,] <- coef(y)
+  
+}
+
+ggplot(data = linereg, aes(x = linereg$residuals,y=linereg$fitted.values)) +
+geom_point() +
+geom_abline()
+```
+
+
+
+
+
+4. Box-Muller algorithm: generate U1 and U2 two independent uniform(0, 1) random variables and set: R =  −2 log(U1) and θ = 2πU2
+then
+X = Rcos(θ) and Y = Rsin(θ)
+are two independent normal variables. Write a function that generates normal variates using Box-Muller algorithm. Compare simulated data from your function with simulated data from rnorm() function using ggplot() (histogram?).
+
+
+First, generate the data.
+```{r}
+Myfunc <- function(n){
+set.seed(1234)
+U1 <- runif(n)
+U2 <- runif(n)
+R <- sqrt((-2) * log(U1))
+sigma <- (2 * pi * U2)
+X <- R * cos(sigma)
+
+
+return(X)
+}
+
+
+```
+
+Then use histogram for comparation,
+```{r}
+dataBM <- Myfunc(1000)
+datarnorm <- rnorm(1000,mean=0,sd=1)
+
+hist(dataBM)
+hist(datarnorm)
+```
+
